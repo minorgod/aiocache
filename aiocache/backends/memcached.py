@@ -21,7 +21,7 @@ class MemcachedBackend:
         self.port = port
         self.pool_size = int(pool_size)
         self._loop = loop
-        clean_args = filter_dict(aiomcache.Client.__init__, *kwargs)
+        clean_args = filter_dict(aiomcache.Client.__init__, kwargs)
         self.client = aiomcache.Client(
             clean_args
         )
