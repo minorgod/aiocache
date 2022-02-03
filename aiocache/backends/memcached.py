@@ -4,6 +4,15 @@ import aiomcache
 from aiocache.base import BaseCache
 from aiocache.serializers import JsonSerializer
 
+import inspect
+
+
+def filter_dict(dict_to_filter, thing_with_kwargs):
+    sig = inspect.signature(thing_with_kwargs)
+    filter_keys = [param.name for param in sig.parameters.values() if param.kind == param.POSITIONAL_OR_KEYWORD]
+    filtered_dict = {filter_key: dict_to_filter[filter_key] for filter_key in filter_keys}
+    return filtered_dict
+
 
 class MemcachedBackend:
     def __init__(self, endpoint="127.0.0.1", port=11211, pool_size=2, loop=None, **kwargs):
@@ -12,8 +21,9 @@ class MemcachedBackend:
         self.port = port
         self.pool_size = int(pool_size)
         self._loop = loop
+        clean_args = filter_dict(aiomcache.Client.__init__, *kwargs)
         self.client = aiomcache.Client(
-            self.endpoint, self.port, loop=self._loop, pool_size=self.pool_size
+            clean_args
         )
 
     async def _get(self, key, encoding="utf-8", _conn=None):
