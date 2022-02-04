@@ -8,6 +8,12 @@ import inspect
 
 
 def filter_dict(dict_to_filter, thing_with_kwargs):
+    """
+    This is an attempt to filter out any kwargs that do not exist in the target def.
+    @param dict_to_filter:
+    @param thing_with_kwargs:
+    @return:
+    """
     sig = inspect.signature(thing_with_kwargs)
     filter_keys = [param.name for param in sig.parameters.values() if param.kind == param.POSITIONAL_OR_KEYWORD]
     filtered_dict = {filter_key: dict_to_filter[filter_key] for filter_key in filter_keys}
@@ -21,6 +27,8 @@ class MemcachedBackend:
         self.port = port
         self.pool_size = int(pool_size)
         self._loop = loop
+        # I do not know why this does not work...I get an error saying
+        # filter_dict expects 2 positional args but 3 were given.
         # clean_args = filter_dict(aiomcache.Client.__init__, kwargs)
         self.client = aiomcache.Client(
             self.endpoint, self.port, pool_size=self.pool_size
